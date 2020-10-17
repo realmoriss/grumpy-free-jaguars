@@ -1,0 +1,45 @@
+@startuml usecases
+left to right direction
+
+actor "Unauthenticated user" as unauth
+actor "User" as user
+actor "Administrator" as admin
+admin -|> user
+
+
+rectangle "CAFF Webshop" {
+    unauth -- (Register)
+    (Log in) as (login)
+    unauth -- (login)
+
+    rectangle "User actions" as useract {
+        user -- (login)
+        (Upload a CAFF file) as (upload)
+        user -- (upload)
+        (upload) ..> (login) : <<include>>
+        (Browse CAFF files) as (browse)
+        user -- (browse)
+        (browse) ..> (login) : <<include>>
+        (View a CAFF file preview) as (view)
+        user -- (view)
+        (view) ..> (login) : <<include>>
+        (View the comments\nfor a CAFF file) as (view_comments)
+        user -- (view_comments)
+        (view_comments) ..> (login) : <<include>>
+        (Download a CAFF file) as (download)
+        user -- (download)
+        (download) ..> (login) : <<include>>
+        (Write a comment) -|> (view_comments)
+    }
+
+    rectangle "Administrator actions" as adminact {
+        (Delete a CAFF file) as (delete)
+        admin -- (delete)
+        (delete) .> (login) : <<include>>
+        (Edit a comment) as (edit)
+        admin -- (edit)
+        (edit) -|> (view_comments)
+    }
+}
+
+@enduml
