@@ -41,6 +41,7 @@ user_manager .up.> db_user : <<secrecy, integrity>>
 
 () "Search content" as api_search
 () "Fetch preview" as api_preview
+() "List comments" as api_list_comments
 () "Upload content" as api_upload
 () "Comment on content" as api_comment
 () "Edit comment" as api_edit_comment
@@ -72,6 +73,11 @@ note bottom of api_comment
     integrity: associations of users with content
 end note
 
+note bottom of api_list_comments
+    <<critical>>
+    integrity: comments, associations of users with content
+end note
+
 note bottom of api_edit_comment
     <<critical>>
     integrity: comments, associations of users with content
@@ -85,6 +91,7 @@ content_manager -- api_edit_comment
 content_manager -- api_preview
 content_manager -- api_search
 content_manager -- api_comment
+content_manager -- api_list_comments
 content_manager -- api_upload
 content_manager -down- api_download
 
