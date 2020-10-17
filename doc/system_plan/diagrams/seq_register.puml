@@ -1,0 +1,35 @@
+@startuml
+
+actor "User Agent" as user_agent
+boundary "Registration API" as api_reg
+database "User database" as db_user
+
+user_agent --> api_reg : Registration request (HTTP POST),\ncontains a tuple of (username, password)
+note top
+    Should also include a CSRF token to prevent users of other,
+    potentially XSS vulnerable sites to take part in a massive account-registration operation.
+    What benefit is there for the attacker though?
+end note
+
+activate api_reg
+
+api_reg <- api_reg : Validate registration request
+alt Failed to validate registration request
+    user_agent <-- api_reg: Return an HTTP status code that signals validation failure.\nExact value depends on how the validation failed.
+else Request is deemed valid
+    api_reg -> db_user : Atomically create user\nor fail if username is already in use
+    activate db_user
+
+    api_reg <- db_user : Result of create operation
+    deactivate db_user
+
+    alt User creation succeeded
+        user_agent <-- api_reg: Return HTTP 201 Created
+    else User creation failed
+        user_agent <-- api_reg: Return HTTP 423 Locked to signal that the username is already taken\n OR HTTP 503 to signal the service is down for some undisclosed reason.
+    end
+end
+
+deactivate api_reg
+
+@enduml

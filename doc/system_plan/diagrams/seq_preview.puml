@@ -1,0 +1,20 @@
+@startuml
+
+actor "User Agent" as user_agent
+boundary "Preview Content API" as api_preview
+database "Content database" as db_content
+
+user_agent --> api_preview : Request with content identifier to fetch preview for (HTTP GET)
+activate api_preview
+
+api_preview -> db_content : Attempt to fetch content from DB.
+activate db_content
+
+api_preview <- db_content : Return result of query
+deactivate db_content
+
+user_agent <-- api_preview: Return HTTP 200 OK,\nbody contains single-frame preview in BMP format.
+
+deactivate api_preview
+
+@enduml

@@ -1,0 +1,31 @@
+@startuml
+
+actor "User Agent" as user_agent
+boundary "Content Comment API" as api_comment
+database "Content database" as db_content
+
+user_agent --> api_comment : Comment request (HTTP POST),\ncontains ID of content commented on.
+note right:  Should also include CSRF-token.
+activate api_comment
+
+api_comment <- api_comment : Validate comment request
+
+alt Comment validation failed
+    user_agent <-- api_comment : Return HTTP status code signaling the reason for failure.
+else
+    api_comment -> db_content : Store comment in database
+    activate db_content
+
+    api_comment <- db_content : Return result of request
+    deactivate db_content
+
+    alt Comment persisted
+        user_agent <-- api_comment: Return HTTP 200 Ok
+    else 
+        user_agent <-- api_comment: Return HTTP status code signaling the reason for failure.
+    end
+end
+
+deactivate api_comment
+
+@enduml
