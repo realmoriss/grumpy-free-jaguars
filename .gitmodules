@@ -1,0 +1,3 @@
+[submodule "kaitai-cpp-runtime"]
+	path = libcaff/vendor/kaitai
+	url = https://github.com/kaitai-io/kaitai_struct_cpp_stl_runtime
