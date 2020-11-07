@@ -1,0 +1,22 @@
+FROM debian:stable-slim AS compile-stage
+
+RUN apt-get update
+
+RUN apt-get install -fy \
+    --no-install-recommends \
+    build-essential git
+
+RUN apt-get install -fy --no-install-recommends ca-certificates cmake
+
+WORKDIR "/src"
+
+RUN git clone https://github.com/kaitai-io/kaitai_struct_cpp_stl_runtime . && \
+    git checkout 0.9
+
+RUN cd build && \
+    cmake .. && \
+    make
+
+FROM scratch AS export-stage
+
+COPY --from=compile-stage "/src/build/libkaitai_struct_cpp_stl_runtime.so" "/"
