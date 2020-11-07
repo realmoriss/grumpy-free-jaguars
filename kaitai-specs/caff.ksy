@@ -14,10 +14,10 @@ types:
     - id: id
       type: u1
       enum: caff_block_id
-      doc: Type of the block
+      doc: 'Type of the CAFF block'
     - id: length
       type: u8
-      doc: Length of the block data
+      doc: 'Length of the CAFF block data'
     - id: data
       size: length
       type:
@@ -26,7 +26,7 @@ types:
           'caff_block_id::header': caff_header
           'caff_block_id::credits': caff_credits
           'caff_block_id::animation': caff_animation
-      doc: Block data
+      doc: 'CAFF block data'
     enums:
       caff_block_id:
         1: header
@@ -37,10 +37,10 @@ types:
     - id: magic
       contents: 'CAFF'
     - id: header_size
-      doc: Size of the header (all fields included)
+      doc: 'Size of the header (all fields included)'
       type: u8
     - id: num_anim
-      doc: Number of CIFF animation blocks
+      doc: 'Number of CIFF animation blocks'
       type: u8
   caff_credits:
     seq:
@@ -60,10 +60,14 @@ types:
       type: str
       size: creator_len
       encoding: ASCII
+      doc: 'Creator of the CAFF file'
+    doc: 'CAFF credits block which specifies the CAFF creation date, creation time and author'
   caff_animation:
     seq:
     - id: duration
       type: u8
+      doc: 'The duration in miliseconds for which the CIFF image must be displayed during animation'
     - id: ciff_data
       type: ciff
       size-eos: true
+    doc: 'CAFF animation block which contains a CIFF image to be animated'
