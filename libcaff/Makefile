@@ -7,12 +7,15 @@ SRC_DIR := ./src
 INCLUDE_DIR := ./include
 TEST_DIR := ./test
 OBJ_DIR_TEST := ./test-obj
+KSY_DIR := ./kaitai-specs
 
 SRC_FILES := $(shell find "$(SRC_DIR)" -type f -iname '*.cpp' -print)
 OBJ_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRC_FILES))
 
 SRC_FILES_TEST := $(shell find "$(TEST_DIR)" -type f -iname '*.cpp' -print)
 OBJ_FILES_TEST := $(patsubst $(TEST_DIR)/%.cpp,$(OBJ_DIR_TEST)/%.o,$(SRC_FILES_TEST))
+
+KSY_FILES := $(shell find "$(KSY_DIR)" -type f -iname '*.ksy' -print)
 
 CXX := g++
 CXXFLAGS := \
@@ -49,7 +52,10 @@ test: $(TEST_RUNNER)
 $(TEST_RUNNER): $(OBJ_FILES_TEST) $(BUILD_DIR)/$(LIB)
 	$(LD) $(LDFLAGS) $(LDFLAGS_TEST) -o $(TEST_RUNNER) $(OBJ_FILES_TEST)
 
-$(OBJ_DIR)/%.o:: $(SRC_DIR)/%.cpp
+$(SRC_DIR)/caff/caff.cpp: $(KSY_FILES)
+	DOCKER_BUILDKIT=1 docker build -o . -f kaitai-gen.docker .
+
+$(OBJ_DIR)/%.o:: $(SRC_DIR)/%.cpp $(SRC_DIR)/caff/caff.cpp
 	@-mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 

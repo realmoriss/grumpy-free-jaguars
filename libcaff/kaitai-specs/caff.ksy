@@ -4,10 +4,12 @@ meta:
   endian: le
   imports:
     - ciff
+
 seq:
 - id: block
   type: caff_block
   repeat: eos
+
 types:
   caff_block:
     seq:
@@ -32,6 +34,7 @@ types:
         1: header
         2: credits
         3: animation
+
   caff_header:
     seq:
     - id: magic
@@ -42,6 +45,7 @@ types:
     - id: num_anim
       doc: 'Number of CIFF animation blocks'
       type: u8
+
   caff_credits:
     seq:
     - id: year
@@ -62,6 +66,7 @@ types:
       encoding: ASCII
       doc: 'Creator of the CAFF file'
     doc: 'CAFF credits block which specifies the CAFF creation date, creation time and author'
+
   caff_animation:
     seq:
     - id: duration

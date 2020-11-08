@@ -10,7 +10,6 @@ seq:
   - id: pixel_data
     size: header.fixed_size.content_size
 
-
 instances:
   header_size:
     pos: 0x4
