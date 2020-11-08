@@ -52,10 +52,10 @@ test: $(TEST_RUNNER)
 $(TEST_RUNNER): $(OBJ_FILES_TEST) $(BUILD_DIR)/$(LIB)
 	$(LD) $(LDFLAGS) $(LDFLAGS_TEST) -o $(TEST_RUNNER) $(OBJ_FILES_TEST)
 
-$(SRC_DIR)/caff/caff.cpp: $(KSY_FILES)
+$(SRC_DIR)/caff/caff.cpp $(SRC_DIR)/caff/ciff.cpp: $(KSY_FILES)
 	DOCKER_BUILDKIT=1 docker build -o . -f kaitai-gen.docker .
 
-$(OBJ_DIR)/%.o:: $(SRC_DIR)/%.cpp $(SRC_DIR)/caff/caff.cpp
+$(OBJ_DIR)/%.o:: $(SRC_DIR)/%.cpp $(SRC_DIR)/caff/caff.cpp $(SRC_DIR)/caff/ciff.cpp
 	@-mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
