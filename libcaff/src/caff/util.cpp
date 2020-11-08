@@ -29,7 +29,9 @@ void pretty_print(caff_t &parsed) {
                     std::cerr << "\tAuthored date: "
                         << credits->year() << "-"
                         << credits->month() + 0 << "-"
-                        << credits->day() + 0
+                        << credits->day() + 0 << " "
+                        << credits->hour() + 0 << ":"
+                        << credits->minute() + 0
                         << std::endl;
                 }
                 break;
