@@ -61,7 +61,7 @@ $(TEST_RUNNER): $(OBJ_FILES_TEST) $(BUILD_DIR)/$(LIB)
 
 test-executable: $(EXECUTABLE)
 	cd $(shell dirname $(EXECUTABLE)) && ./$(shell basename $(EXECUTABLE)) < "../../fixtures/inputs/1.caff" > /dev/null
-.PHONY: test-exec
+.PHONY: test-executable
 
 executable: $(EXECUTABLE)
 .PHONY: executable
