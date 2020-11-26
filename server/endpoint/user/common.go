@@ -31,6 +31,7 @@ var (
 
 func NewEndpoint(router gin.IRouter, db *gorm.DB) *UserEndpoint {
 	db.AutoMigrate(&model.User{})
+	db.AutoMigrate(&model.CaffContent{}) // TODO: move out to content endpoint once it comes to exist
 
 	self := &UserEndpoint{db: db}
 

@@ -13,6 +13,8 @@ type User struct {
 
 	Username     string       `gorm:"unique;not null"`
 	PasswordHash PasswordHash `gorm:"not null"`
+
+	Content []CaffContent `gorm:"constraint:OnDelete:CASCADE;"`
 }
 
 type PasswordHash struct {
