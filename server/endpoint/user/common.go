@@ -1,12 +1,15 @@
 package user
 
 import (
-    "log"
-    "os"
-    "net/http"
+	"errors"
+	"log"
+	"os"
 
-    "github.com/gin-gonic/gin"
-    "github.com/gin-gonic/nosurf"
+	"github.com/gin-gonic/gin"
+
+	"gorm.io/gorm"
+
+	"server/model"
 )
 
 var (
@@ -17,32 +20,25 @@ func init() {
 	logger = log.New(os.Stdout, "user: ", log.LstdFlags|log.LUTC|log.Lmsgprefix)
 }
 
+
 type UserEndpoint struct {
-	db interface{}
+	db *gorm.DB
 }
 
-func NewEndpoint(router gin.IRouter, db interface{}) *UserEndpoint {
-	counter := 0
 
-	router.GET("/profile", func(c *gin.Context) {
-		// TODO: Replace with actual functionality
-		counter++
-		c.String(http.StatusOK, "Hello, visitor %d!", counter)
-	})
+var (
+	ErrPasswordDoNotMatch = errors.New("passwords did not match")
+	ErrPasswordInsecure = errors.New("password must be ...") // TODO: at least not empty, perhaps?
+)
 
-	router.GET("/register", func(c *gin.Context) {
-		// CSRF example
-		tok := nosurf.Token(c.Request)
-		c.HTML(http.StatusOK, "register.tmpl", gin.H{
-			"csrf_token": tok,
-		})
-	})
 
-	router.POST("/register", func(c *gin.Context) {
-		c.String(http.StatusOK, "Hello, %s!", c.PostForm("username"))
-	})
+func NewEndpoint(router gin.IRouter, db *gorm.DB) *UserEndpoint {
+	db.AutoMigrate(&model.User{})
 
-	return &UserEndpoint{
-		db: db,
-	}
+	self := &UserEndpoint{ db: db }
+
+	self.addLoginEndpoints(router)
+	self.addRegisterEndpoints(router)
+
+	return self
 }
