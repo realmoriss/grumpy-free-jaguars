@@ -10,8 +10,8 @@ import (
 )
 
 func (userManager UserEndpoint) Register(user model.User) error {
-    result := userManager.db.Create(&user)
-    return result.Error
+	result := userManager.db.Create(&user)
+	return result.Error
 }
 
 func (userManager UserEndpoint) addRegisterEndpoints(router gin.IRouter) {
@@ -26,8 +26,8 @@ func (userManager UserEndpoint) addRegisterEndpoints(router gin.IRouter) {
 
 	router.POST("/register", func(c *gin.Context) {
 		var requested struct {
-			Username string `form:"username"`
-			Password string `form:"password"`
+			Username        string `form:"username"`
+			Password        string `form:"password"`
 			PasswordConfirm string `form:"password_confirm"`
 		}
 
@@ -37,7 +37,8 @@ func (userManager UserEndpoint) addRegisterEndpoints(router gin.IRouter) {
 			status := http.StatusBadRequest
 
 			switch err {
-			case ErrPasswordInsecure: fallthrough
+			case ErrPasswordInsecure:
+				fallthrough
 			case ErrPasswordDoNotMatch:
 				msg = err.Error()
 			}
@@ -47,7 +48,10 @@ func (userManager UserEndpoint) addRegisterEndpoints(router gin.IRouter) {
 		}
 
 		err := c.ShouldBind(&requested)
-		if err != nil { fail(err); return }
+		if err != nil {
+			fail(err)
+			return
+		}
 
 		switch {
 		case requested.Password != requested.PasswordConfirm:
@@ -60,11 +64,13 @@ func (userManager UserEndpoint) addRegisterEndpoints(router gin.IRouter) {
 		}
 
 		err = userManager.Register(model.User{
-			Username: requested.Username,
+			Username:     requested.Username,
 			PasswordHash: model.HashPassword(requested.Password),
 		})
-		if err != nil { fail(err); return }
-
+		if err != nil {
+			fail(err)
+			return
+		}
 
 		c.String(http.StatusOK, "Hello, %s!", c.PostForm("username"))
 	})

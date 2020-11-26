@@ -3,27 +3,27 @@ package model
 import (
 	"database/sql/driver"
 	"encoding/hex"
-    "gorm.io/gorm"
+	"gorm.io/gorm"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
-    gorm.Model
+	gorm.Model
 
-    Username string `gorm:"unique;not null"`
-    PasswordHash PasswordHash `gorm:"not null"`
+	Username     string       `gorm:"unique;not null"`
+	PasswordHash PasswordHash `gorm:"not null"`
 }
 
 type PasswordHash struct {
 	hashBytes []byte
 }
 
-func(p PasswordHash) Value() (driver.Value, error) {
+func (p PasswordHash) Value() (driver.Value, error) {
 	return hex.EncodeToString(p.hashBytes), nil
 }
 
-func(p *PasswordHash) Scan(value interface{}) (error) {
+func (p *PasswordHash) Scan(value interface{}) error {
 	asStr, err := driver.String.ConvertValue(value)
 	if err != nil {
 		return nil
@@ -42,5 +42,5 @@ func HashPassword(pw string) PasswordHash {
 }
 
 func CheckPasswordsMatch(provided string, pw PasswordHash) error {
-    return bcrypt.CompareHashAndPassword(pw.hashBytes, []byte(provided))
+	return bcrypt.CompareHashAndPassword(pw.hashBytes, []byte(provided))
 }

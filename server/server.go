@@ -19,7 +19,7 @@ func main() {
 	// TODO: Setup db.
 	db, err := gorm.Open(sqlite.Open("./data/test.db"), &gorm.Config{})
 	if err != nil {
-	  panic("failed to connect database")
+		panic("failed to connect database")
 	}
 
 	cookieStore := cookie.NewStore([]byte("TODO-take-secret-from-elsewhere"))
@@ -36,7 +36,7 @@ func main() {
 	}
 
 	router.GET("/", func(c *gin.Context) {
-		c.HTML(200, "index.tmpl", gin.H{ }) // TODO
+		c.HTML(200, "index.tmpl", gin.H{}) // TODO
 	})
 
 	http.ListenAndServe(":3000", nosurf.New(router))
