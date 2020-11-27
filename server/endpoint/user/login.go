@@ -33,7 +33,8 @@ func (userManager UserEndpoint) SetCurrentUser(c *gin.Context, user model.User) 
 }
 
 func renderLogin(c *gin.Context, status int) {
-	c.HTML(status, "login.tmpl", gin.H{
+	c.HTML(status, "login", gin.H{
+		"title":      "Login",
 		"csrf_token": nosurf.Token(c.Request),
 	})
 }
@@ -47,7 +48,7 @@ func (userManager UserEndpoint) addLoginEndpoints(router gin.IRouter) {
 			return
 		}
 
-		c.String(http.StatusTemporaryRedirect, "already logged in as %s", user.Username)
+		c.Redirect(http.StatusTemporaryRedirect, "/")
 	})
 
 	router.POST("/login", func(c *gin.Context) {
@@ -78,7 +79,7 @@ func (userManager UserEndpoint) addLoginEndpoints(router gin.IRouter) {
 
 		userManager.SetCurrentUser(c, *user)
 
-		c.String(http.StatusOK, "Logged in as %s", provided.Username)
+		c.Redirect(http.StatusFound, "/")
 	})
 }
 
@@ -91,4 +92,18 @@ func (userManager UserEndpoint) Login(username, password string) (*model.User, e
 	}
 
 	return &user, model.CheckPasswordsMatch(username, user.PasswordHash)
+}
+
+func (userManager UserEndpoint) AuthRequired() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		user := userManager.CurrentUser(c)
+		if user == nil {
+			c.HTML(http.StatusUnauthorized, "unauth", gin.H{
+				"title": "Unauthorized",
+			})
+			c.AbortWithStatus(http.StatusUnauthorized)
+		} else {
+			c.Next()
+		}
+	}
 }

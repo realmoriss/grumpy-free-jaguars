@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>{{ .title }}</title>
+        {{ include "layouts/mvp" }}
+        {{ template "head" }}
+    </head>
+    <body>
+        <header>
+            {{ include "layouts/header" }}
+        </header>
+        <main>
+            {{ template "content" . }}
+        </main>
+    </body>
+</html>

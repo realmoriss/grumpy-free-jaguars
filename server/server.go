@@ -3,15 +3,17 @@ package main
 import (
 	"net/http"
 
+	"github.com/foolin/goview/supports/ginview"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/nosurf"
-	"github.com/gwatts/gin-adapter"
+	adapter "github.com/gwatts/gin-adapter"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
+	content "server/endpoint/content"
 	user "server/endpoint/user"
 )
 
@@ -28,15 +30,28 @@ func main() {
 	router.Use(adapter.Wrap(nosurf.NewPure))
 	router.Use(sessions.Sessions("login_state", cookieStore))
 
-	router.LoadHTMLGlob("templates/*")
+	router.HTMLRender = ginview.Default()
 
+	userGroup := router.Group("/user")
+	userEndpoint := user.NewEndpoint(userGroup, db)
+
+	authorized := router.Group("/content")
+
+	authorized.Use(userEndpoint.AuthRequired())
 	{
-		g := router.Group("/user")
-		user.NewEndpoint(g, db)
+		content.NewEndpoint(authorized, db)
 	}
 
 	router.GET("/", func(c *gin.Context) {
-		c.HTML(200, "index.tmpl", gin.H{}) // TODO
+		currentUser := userEndpoint.CurrentUser(c)
+
+		if currentUser != nil {
+			c.Redirect(http.StatusTemporaryRedirect, "/content/browse")
+		} else {
+			c.HTML(200, "index", gin.H{
+				"title": "Home",
+			})
+		}
 	})
 
 	http.ListenAndServe(":3000", nosurf.New(router))

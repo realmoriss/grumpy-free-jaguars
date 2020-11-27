@@ -19,7 +19,8 @@ func (userManager UserEndpoint) addRegisterEndpoints(router gin.IRouter) {
 	router.GET("/register", func(c *gin.Context) {
 		// CSRF example
 		tok := nosurf.Token(c.Request)
-		c.HTML(http.StatusOK, "register.tmpl", gin.H{
+		c.HTML(http.StatusOK, "register", gin.H{
+			"title":      "Register",
 			"csrf_token": tok,
 		})
 	})
@@ -72,6 +73,6 @@ func (userManager UserEndpoint) addRegisterEndpoints(router gin.IRouter) {
 			return
 		}
 
-		c.String(http.StatusOK, "Hello, %s!", c.PostForm("username"))
+		c.Redirect(http.StatusTemporaryRedirect, "/")
 	})
 }
