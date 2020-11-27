@@ -1,9 +1,13 @@
 <nav>
     <a href="/">GoCAFF</a>
     <ul>
+        {{ if .is_authenticated }}
         <li><a href="/content/browse">Browse</a></li>
         <li><a href="/content/upload">Upload</a></li>
+        <li><a href="/user/logout">Log out ({{.user_name}})</a></li>
+        {{ else }}
         <li><a href="/user/login">Log in</a></li>
         <li><a href="/user/register">Register</a></li>
+        {{ end }}
     </ul>
 </nav>

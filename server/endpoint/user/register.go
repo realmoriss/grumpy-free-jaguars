@@ -2,10 +2,9 @@ package user
 
 import (
 	"net/http"
+	"server/util"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/nosurf"
-
 	"server/model"
 )
 
@@ -18,10 +17,8 @@ func (userManager UserEndpoint) addRegisterEndpoints(router gin.IRouter) {
 	// TODO: continue cleanup
 	router.GET("/register", func(c *gin.Context) {
 		// CSRF example
-		tok := nosurf.Token(c.Request)
-		c.HTML(http.StatusOK, "register", gin.H{
-			"title":      "Register",
-			"csrf_token": tok,
+		util.HtmlWithContext(c, http.StatusOK, "register", gin.H{
+			"title": "Register",
 		})
 	})
 
@@ -73,6 +70,6 @@ func (userManager UserEndpoint) addRegisterEndpoints(router gin.IRouter) {
 			return
 		}
 
-		c.Redirect(http.StatusTemporaryRedirect, "/")
+		c.Redirect(http.StatusSeeOther, "/")
 	})
 }

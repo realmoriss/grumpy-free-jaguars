@@ -4,13 +4,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/nosurf"
+
+	"server/util"
 )
 
 func renderBrowse(c *gin.Context, status int) {
-	c.HTML(status, "browse", gin.H{
-		"title":      "Browse",
-		"csrf_token": nosurf.Token(c.Request),
+	util.HtmlWithContext(c, status, "browse", gin.H{
+		"title": "Browse",
 	})
 }
 

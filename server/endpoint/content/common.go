@@ -1,7 +1,6 @@
 package content
 
 import (
-	"errors"
 	"log"
 	"os"
 
@@ -17,17 +16,12 @@ var (
 )
 
 func init() {
-	logger = log.New(os.Stdout, "user: ", log.LstdFlags|log.LUTC|log.Lmsgprefix)
+	logger = log.New(os.Stdout, "content: ", log.LstdFlags|log.LUTC|log.Lmsgprefix)
 }
 
 type ContentEndpoint struct {
 	db *gorm.DB
 }
-
-var (
-	ErrPasswordDoNotMatch = errors.New("passwords did not match")
-	ErrPasswordInsecure   = errors.New("password must be ...") // TODO: at least not empty, perhaps?
-)
 
 func NewEndpoint(router gin.IRouter, db *gorm.DB) *ContentEndpoint {
 	db.AutoMigrate(&model.CaffContent{})

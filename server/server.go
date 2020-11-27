@@ -1,20 +1,22 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/foolin/goview/supports/ginview"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/nosurf"
 	adapter "github.com/gwatts/gin-adapter"
+	"net/http"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
-	content "server/endpoint/content"
-	user "server/endpoint/user"
+	"server/model"
+
+	"server/endpoint/content"
+	"server/endpoint/user"
+	"server/middleware"
 )
 
 func main() {
@@ -34,24 +36,30 @@ func main() {
 
 	userGroup := router.Group("/user")
 	userEndpoint := user.NewEndpoint(userGroup, db)
+	userFromSession := func(c *gin.Context) *model.User {
+		return userEndpoint.GetCurrentUserFromSession(c)
+	}
+	router.Use(middleware.WithUser(userFromSession))
 
 	authorized := router.Group("/content")
 
-	authorized.Use(userEndpoint.AuthRequired())
+	// avoid import cycle so user endpoint package can defer tasks to middleware
+
+	authorized.Use(middleware.AuthRequired())
 	{
 		content.NewEndpoint(authorized, db)
 	}
 
 	router.GET("/", func(c *gin.Context) {
-		currentUser := userEndpoint.CurrentUser(c)
-
+		currentUser := middleware.CurrentUser(c)
 		if currentUser != nil {
 			c.Redirect(http.StatusTemporaryRedirect, "/content/browse")
-		} else {
-			c.HTML(200, "index", gin.H{
-				"title": "Home",
-			})
+			return
 		}
+
+		c.HTML(200, "index", gin.H{
+			"title": "Home",
+		})
 	})
 
 	http.ListenAndServe(":3000", nosurf.New(router))

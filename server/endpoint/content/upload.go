@@ -2,15 +2,14 @@ package content
 
 import (
 	"net/http"
+	"server/util"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/nosurf"
 )
 
 func renderUpload(c *gin.Context, status int) {
-	c.HTML(status, "upload", gin.H{
-		"title":      "Upload",
-		"csrf_token": nosurf.Token(c.Request),
+	util.HtmlWithContext(c, status, "upload", gin.H{
+		"title": "Upload",
 	})
 }
 

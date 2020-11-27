@@ -2,17 +2,19 @@ package user
 
 import (
 	"net/http"
+	"server/middleware"
+	"server/util"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/nosurf"
-
 	"server/model"
 )
 
-const sessionUserId = "user-id"
+const (
+	sessionUserId = "user-id"
+)
 
-func (userManager UserEndpoint) CurrentUser(c *gin.Context) *model.User {
+func (userManager UserEndpoint) GetCurrentUserFromSession(c *gin.Context) *model.User {
 	var user model.User
 
 	sess := sessions.Default(c)
@@ -26,22 +28,32 @@ func (userManager UserEndpoint) CurrentUser(c *gin.Context) *model.User {
 	return nil
 }
 
-func (userManager UserEndpoint) SetCurrentUser(c *gin.Context, user model.User) {
+func (userManager UserEndpoint) SetCurrentUser(c *gin.Context, user *model.User) {
 	sess := sessions.Default(c)
-	sess.Set(sessionUserId, user.ID)
-	sess.Save()
+
+	switch {
+	case user != nil:
+		sess.Set(sessionUserId, user.ID)
+		logger.Printf("%#v", c)
+	default:
+		sess.Delete(sessionUserId)
+	}
+
+	err := sess.Save()
+	if err != nil {
+		logger.Println("set-current-user:", err)
+	}
 }
 
 func renderLogin(c *gin.Context, status int) {
-	c.HTML(status, "login", gin.H{
-		"title":      "Login",
-		"csrf_token": nosurf.Token(c.Request),
+	util.HtmlWithContext(c, status, "login", gin.H{
+		"title": "Login",
 	})
 }
 
 func (userManager UserEndpoint) addLoginEndpoints(router gin.IRouter) {
 	router.GET("/login", func(c *gin.Context) {
-		user := userManager.CurrentUser(c)
+		user := middleware.CurrentUser(c)
 
 		if user == nil {
 			renderLogin(c, http.StatusOK)
@@ -52,11 +64,11 @@ func (userManager UserEndpoint) addLoginEndpoints(router gin.IRouter) {
 	})
 
 	router.POST("/login", func(c *gin.Context) {
-		user := userManager.CurrentUser(c)
+		user := middleware.CurrentUser(c)
 
 		switch {
 		case user != nil:
-			c.Redirect(http.StatusTemporaryRedirect, "/")
+			c.Redirect(http.StatusSeeOther, "/")
 			return
 		}
 
@@ -77,9 +89,15 @@ func (userManager UserEndpoint) addLoginEndpoints(router gin.IRouter) {
 			return
 		}
 
-		userManager.SetCurrentUser(c, *user)
+		userManager.SetCurrentUser(c, user)
 
-		c.Redirect(http.StatusFound, "/")
+		c.Redirect(http.StatusSeeOther, "/")
+	})
+
+	// I think this might warrant a POST, but currently our menu is all links and I can only GET from there.
+	router.GET("/logout", func(c *gin.Context) {
+		userManager.SetCurrentUser(c, nil)
+		c.Redirect(http.StatusTemporaryRedirect, "/")
 	})
 }
 
@@ -92,18 +110,4 @@ func (userManager UserEndpoint) Login(username, password string) (*model.User, e
 	}
 
 	return &user, model.CheckPasswordsMatch(username, user.PasswordHash)
-}
-
-func (userManager UserEndpoint) AuthRequired() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		user := userManager.CurrentUser(c)
-		if user == nil {
-			c.HTML(http.StatusUnauthorized, "unauth", gin.H{
-				"title": "Unauthorized",
-			})
-			c.AbortWithStatus(http.StatusUnauthorized)
-		} else {
-			c.Next()
-		}
-	}
 }
