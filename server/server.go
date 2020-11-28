@@ -29,7 +29,18 @@ func main() {
 	cookieStore := cookie.NewStore([]byte("TODO-take-secret-from-elsewhere"))
 
 	router := gin.Default()
-	router.Use(adapter.Wrap(nosurf.NewPure))
+
+	csrfHandler := func() gin.HandlerFunc {
+		next, wrapper := adapter.New()
+		nsHandler := nosurf.New(next)
+		nsHandler.SetFailureHandler(http.HandlerFunc((func(rw http.ResponseWriter, req *http.Request) {
+			http.Error(rw, "failed to verify CSRF token", http.StatusBadRequest)
+		})))
+
+		return wrapper(nsHandler)
+	}()
+
+	router.Use(csrfHandler)
 	router.Use(sessions.Sessions("login_state", cookieStore))
 
 	router.HTMLRender = ginview.Default()
