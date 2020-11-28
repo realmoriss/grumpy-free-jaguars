@@ -7,6 +7,7 @@ import (
 	"image/png"
 	"io"
 	"io/ioutil"
+	"os"
 	"server/caff"
 
 	"gorm.io/gorm"
@@ -17,10 +18,16 @@ var (
 )
 
 func init() {
-	newParser, err := caff.NewParser("/mnt/WinStorage/Work/grumpy-free-jaguars/libcaff/build/caff")
+	parserPath := os.Getenv("CAFF_PARSER_PATH")
+	if parserPath == "" {
+		panic("CAFF_PARSER_PATH is not set!")
+	}
+
+	newParser, err := caff.NewParser(parserPath)
 	if err != nil {
 		panic("unable to open caff parser!")
 	}
+
 	parser = newParser
 }
 
