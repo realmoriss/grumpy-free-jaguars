@@ -1,9 +1,10 @@
 package middleware
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"server/model"
+
+	"github.com/gin-gonic/gin"
 )
 
 const (

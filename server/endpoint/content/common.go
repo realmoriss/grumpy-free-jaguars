@@ -30,6 +30,7 @@ func NewEndpoint(router gin.IRouter, db *gorm.DB) *ContentEndpoint {
 
 	self.addBrowseEndpoints(router)
 	self.addUploadEndpoints(router)
+	self.addPreviewEndpoints(router)
 
 	return self
 }

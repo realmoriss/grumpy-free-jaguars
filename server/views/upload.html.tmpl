@@ -1,0 +1,24 @@
+{{ define "head" }}
+{{ end }}
+
+{{ define "content" }}
+<section>
+    <header>
+        <h2>Upload</h2>
+        {{ if .error }}
+        <p class="error">{{ .error }}</p>
+        {{ end }}
+    </header>
+    <form method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ .csrf_token }}">
+
+        <label for="title">Title</label>
+        <input type="text" required="required" placeholder="title" name="title">
+
+        <label for="file">File</label>
+        <input type="file" required="required" name="file">
+
+        <input type="submit" value="Upload">
+    </form>
+</section>
+{{ end }}}

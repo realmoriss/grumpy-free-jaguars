@@ -1,14 +1,19 @@
 package main
 
 import (
+	"encoding/base64"
+	"html/template"
+
+	"github.com/foolin/goview"
 	"github.com/foolin/goview/supports/ginview"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 
+	"net/http"
+
 	"github.com/gin-gonic/nosurf"
 	adapter "github.com/gwatts/gin-adapter"
-	"net/http"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -18,6 +23,7 @@ import (
 	"server/endpoint/content"
 	"server/endpoint/user"
 	"server/middleware"
+	"time"
 )
 
 func main() {
@@ -35,7 +41,7 @@ func main() {
 		next, wrapper := adapter.New()
 		nsHandler := nosurf.New(next)
 		nsHandler.SetBaseCookie(http.Cookie{
-			Path: "/",
+			Path:     "/",
 			HttpOnly: true,
 		})
 		nsHandler.SetFailureHandler(http.HandlerFunc((func(rw http.ResponseWriter, req *http.Request) {
@@ -48,7 +54,20 @@ func main() {
 	router.Use(csrfHandler)
 	router.Use(sessions.Sessions("login_state", cookieStore))
 
-	router.HTMLRender = ginview.Default()
+	router.HTMLRender = ginview.New(goview.Config{
+		Root:      "views",
+		Extension: ".html.tmpl",
+		Master:    "layouts/main",
+		Funcs: template.FuncMap{
+			"formatTime": func(t time.Time) string {
+				return t.Format("2006.01.02. 15:04") // Go time formatting is really weird!
+			},
+			"base64": func(bytes []byte) string {
+				return base64.StdEncoding.EncodeToString(bytes)
+			},
+		},
+		DisableCache: true,
+	})
 
 	userGroup := router.Group("/user")
 	userEndpoint := user.NewEndpoint(userGroup, db)

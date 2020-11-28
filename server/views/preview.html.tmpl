@@ -4,7 +4,8 @@
 {{ define "content" }}
 <section>
     <header>
-        <h2>Browse</h2>
+        <h2>{{ .image.Title }}</h2>
     </header>
+    <img src="data:image/png;base64,{{ .image.PreviewPng | base64 }}" />
 </section>
 {{ end }}}
