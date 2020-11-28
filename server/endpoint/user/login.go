@@ -97,7 +97,7 @@ func (userManager UserEndpoint) addLoginEndpoints(router gin.IRouter) {
 
 	router.POST("/logout", func(c *gin.Context) {
 		userManager.SetCurrentUser(c, nil)
-		c.Redirect(http.StatusTemporaryRedirect, "/")
+		c.Redirect(http.StatusSeeOther, "/")
 	})
 }
 
