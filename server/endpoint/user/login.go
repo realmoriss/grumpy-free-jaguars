@@ -5,9 +5,10 @@ import (
 	"server/middleware"
 	"server/util"
 
+	"server/model"
+
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"server/model"
 )
 
 const (
@@ -94,8 +95,7 @@ func (userManager UserEndpoint) addLoginEndpoints(router gin.IRouter) {
 		c.Redirect(http.StatusSeeOther, "/")
 	})
 
-	// I think this might warrant a POST, but currently our menu is all links and I can only GET from there.
-	router.GET("/logout", func(c *gin.Context) {
+	router.POST("/logout", func(c *gin.Context) {
 		userManager.SetCurrentUser(c, nil)
 		c.Redirect(http.StatusTemporaryRedirect, "/")
 	})
