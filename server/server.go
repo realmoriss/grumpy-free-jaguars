@@ -5,6 +5,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
+
 	"github.com/gin-gonic/nosurf"
 	adapter "github.com/gwatts/gin-adapter"
 	"net/http"
@@ -33,6 +34,10 @@ func main() {
 	csrfHandler := func() gin.HandlerFunc {
 		next, wrapper := adapter.New()
 		nsHandler := nosurf.New(next)
+		nsHandler.SetBaseCookie(http.Cookie{
+			Path: "/",
+			HttpOnly: true,
+		})
 		nsHandler.SetFailureHandler(http.HandlerFunc((func(rw http.ResponseWriter, req *http.Request) {
 			http.Error(rw, "failed to verify CSRF token", http.StatusBadRequest)
 		})))
@@ -73,6 +78,6 @@ func main() {
 		})
 	})
 
-	http.ListenAndServe(":3000", nosurf.New(router))
+	http.ListenAndServe(":3000", router)
 	router.Run(":3000")
 }
