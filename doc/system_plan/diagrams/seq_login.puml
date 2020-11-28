@@ -1,0 +1,35 @@
+@startuml
+
+actor "User Agent" as user_agent
+boundary "Login API" as api_login
+database "User database" as db_user
+
+user_agent --> api_login : Login request (HTTP POST),\ncontains a tuple of (username, password, CSRF token)
+note right
+    **MUST** also include a CSRF token to prevent users of other,
+    potentially XSS vulnerable sites to take part in a massive distributed password brute force operation.
+end note
+
+activate api_login
+
+api_login <- api_login : Validate login request
+alt Failed to validate login request
+    user_agent <-- api_login: Return an HTTP status code that signals validation failure.\nExact value depends on how the validation failed.
+else Request is deemed valid
+    api_login -> db_user : Attempt to user information (ID, role, password hash, salt)
+    activate db_user
+
+    api_login <- db_user : Return result of request
+    deactivate db_user
+
+    alt User information exists in database, authentication against password hash succeeded
+        user_agent <-- api_login: Return HTTP 200 OK,\nset an (AEAD!) encrypted session cookie that contains the user id and session timeout.
+    else 
+        user_agent <-- api_login: Return HTTP 401 Unauthorized to signal that the login failed without disclosing the reason of the failure.
+    end
+end
+note right: Do we want to throttle login attempts? If so, we need at least one another **alt** frame\nand more interaction with the database to log login attempts.
+
+deactivate api_login
+
+@enduml

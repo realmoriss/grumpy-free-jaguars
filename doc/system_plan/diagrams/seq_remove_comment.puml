@@ -1,0 +1,53 @@
+@startuml
+
+actor "User Agent" as user_agent
+boundary "Comment removal API" as api_remove_comment
+boundary "User Manager" as user_manager
+database "User database" as db_user
+database "Content database" as db_content
+
+user_agent --> api_remove_comment : Removal request (HTTP DELETE),\ncontains ID of comment to be removed.
+note top
+    Should also include a CSRF token to prevent admins who are also
+    visit other, potentially XSS vulnerable or malicious sites
+    from helping an unkown actor remove content without authorization.
+end note
+
+activate api_remove_comment
+
+api_remove_comment -> user_manager : Retrieve role of requesting user.
+activate user_manager
+
+user_manager -> db_user : Fetch user information from database.
+activate db_user
+
+user_manager <- db_user : Return query result.
+deactivate db_user
+
+api_remove_comment <- user_manager : Return user role.
+deactivate user_manager
+
+alt User has admin role
+    api_remove_comment <- api_remove_comment : Validate removal request
+    alt Failed to validate removal request
+        user_agent <-- api_remove_comment: Return an HTTP status code that signals validation failure.\nExact value depends on how the validation failed.
+    else Request is deemed valid
+        api_remove_comment -> db_content : Delete comment from DB
+        activate db_content
+
+        api_remove_comment <- db_content : Result of delete operation
+        deactivate db_content
+
+        alt Comment has been removed succesfully
+            user_agent <-- api_remove_comment: Return HTTP 204 No Content
+        else Removal failed
+            user_agent <-- api_remove_comment: Return HTTP Status code to signal reason for failure.
+        end
+    end
+else User is not authorized to remove comments
+    user_agent <-- api_remove_comment: Return HTTP 403 Forbidden to signal that the user has no permission to request what they just did.
+end
+
+deactivate api_remove_comment
+
+@enduml

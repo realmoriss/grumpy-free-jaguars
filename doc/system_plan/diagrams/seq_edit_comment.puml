@@ -1,0 +1,53 @@
+@startuml
+
+actor "User Agent" as user_agent
+boundary "Comment editing API" as api_edit_comment
+boundary "User Manager" as user_manager
+database "User database" as db_user
+database "Content database" as db_content
+
+user_agent --> api_edit_comment : Modification request (HTTP POST),\ncontains ID of content to be updated as well as its new contents.
+note top
+    Should also include a CSRF token to prevent admins who are also
+    visit other, potentially XSS vulnerable or malicious sites
+    from helping an unkown actor remove content without authorization.
+end note
+
+activate api_edit_comment
+
+api_edit_comment -> user_manager : Retrieve role of requesting user.
+activate user_manager
+
+user_manager -> db_user : Fetch user information from database.
+activate db_user
+
+user_manager <- db_user : Return query result.
+deactivate db_user
+
+api_edit_comment <- user_manager : Return user role.
+deactivate user_manager
+
+alt User has admin role
+    api_edit_comment <- api_edit_comment : Validate modification request
+    alt Failed to validate modification request
+        user_agent <-- api_edit_comment: Return an HTTP status code that signals validation failure.\nExact value depends on how the validation failed.
+    else Request is deemed valid
+        api_edit_comment -> db_content : Update comment in DB
+        activate db_content
+
+        api_edit_comment <- db_content : Result of update operation
+        deactivate db_content
+
+        alt Comment has been updated succesfully
+            user_agent <-- api_edit_comment: Return HTTP 204 No Content
+        else Removal failed
+            user_agent <-- api_edit_comment: Return HTTP Status code to signal reason for failure.
+        end
+    end
+else User is not authorized to edit comments
+    user_agent <-- api_edit_comment: Return HTTP 403 Forbidden to signal that the user has no permission to request what they just did.
+end
+
+deactivate api_edit_comment
+
+@enduml

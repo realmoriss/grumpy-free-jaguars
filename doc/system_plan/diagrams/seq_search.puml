@@ -1,0 +1,20 @@
+@startuml
+
+actor "User Agent" as user_agent
+boundary "Search Content API" as api_search
+database "Content database" as db_content
+
+user_agent --> api_search : Search request (HTTP GET),\ncontains a single string to be searched for in the content db.
+activate api_search
+
+api_search -> db_content : Run search query (prepared statement).
+activate db_content
+
+api_search <- db_content : Return result of query
+deactivate db_content
+
+user_agent <-- api_search: Return HTTP 200 OK,\nbody contains search results in a structured format.
+
+deactivate api_search
+
+@enduml

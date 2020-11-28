@@ -1,0 +1,106 @@
+@startuml
+
+skinparam componentstyle uml2
+
+rectangle "CAFF shop" {
+    [User manager] as user_manager
+    [Content manager] as content_manager
+    [<<critical>>\nCAFF Parser] as caff_parser
+    [<<critical>>\nUser Database] as db_user
+    [<<critical>>\nContent Database] as db_content
+}
+
+note left of caff_parser
+    <<critical>>
+    integrity: returned information
+end note
+
+note top of db_user
+    <<critical>>
+    secrecy: password
+    integrity: role, password
+end note
+
+note top of db_content
+    <<critical>>
+    integrity: content, comments, association between users and content or comments
+end note
+
+content_manager -right-> user_manager : Query role
+content_manager -right-> user_manager : Query name
+
+content_manager .up.> db_content : <<integrity>>
+
+content_manager -up-> caff_parser : <<integrity>>
+content_manager -up-> caff_parser : <<integrity>>
+
+user_manager .up.> db_user : <<secrecy, integrity>>
+
+() "Register" as api_register
+() "Login" as api_login
+
+() "Search content" as api_search
+() "Fetch preview" as api_preview
+() "List comments" as api_list_comments
+() "Remove comment" as api_remove_comment
+() "Upload content" as api_upload
+() "Comment on content" as api_comment
+() "Edit comment" as api_edit_comment
+() "Download content" as api_download
+() "Remove content" as api_remove
+
+note bottom of api_preview
+    <<critical>>
+    integrity: content
+end note
+
+note bottom of api_download
+    <<critical>>
+    integrity: content
+end note
+
+note bottom of api_upload
+    <<critical>>
+    integrity: content, comments, associations of users with content
+end note
+
+note bottom of api_remove
+    <<critical>>
+    integrity: content, comments
+end note
+
+note bottom of api_remove_comment
+    <<critical>>
+    integrity: comments, associations of users with content and comments
+end note
+
+
+note bottom of api_comment
+    <<critical>>
+    integrity: associations of users with content
+end note
+
+note bottom of api_list_comments
+    <<critical>>
+    integrity: comments, associations of users with content
+end note
+
+note bottom of api_edit_comment
+    <<critical>>
+    integrity: comments, associations of users with content
+end note
+
+user_manager -down- api_register
+user_manager -down- api_login
+
+content_manager -left- api_remove
+content_manager -- api_edit_comment
+content_manager -- api_remove_comment
+content_manager -- api_preview
+content_manager -- api_search
+content_manager -- api_comment
+content_manager -- api_list_comments
+content_manager -- api_upload
+content_manager -down- api_download
+
+@enduml

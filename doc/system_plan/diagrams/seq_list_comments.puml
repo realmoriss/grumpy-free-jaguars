@@ -1,0 +1,24 @@
+@startuml
+
+actor "User Agent" as user_agent
+boundary "Content Comment listing API" as api_list_comments
+database "Content database" as db_content
+
+user_agent --> api_list_comments : Comment list request (HTTP GET),\ncontains ID of content client wishes to fetch comments for.
+activate api_list_comments
+
+api_list_comments -> db_content : Retrieve comments from database
+activate db_content
+
+api_list_comments <- db_content : Return result of request
+deactivate db_content
+
+alt Retrieval succeeded
+    user_agent <-- api_list_comments: Return HTTP 200 Ok, body contains comments.
+else 
+    user_agent <-- api_list_comments: Return HTTP status code signaling the reason for failure.
+end
+
+deactivate api_list_comments
+
+@enduml

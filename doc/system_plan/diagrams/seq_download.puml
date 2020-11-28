@@ -1,0 +1,24 @@
+@startuml
+
+actor "User Agent" as user_agent
+boundary "Content Download API" as api_download
+database "Content database" as db_content
+
+user_agent --> api_download : Download request (HTTP GET),\ncontains ID of requested content
+activate api_download
+
+api_download -> db_content : Retrieve content from database
+activate db_content
+
+api_download <- db_content : Return result of request
+deactivate db_content
+
+alt Retrieval succeeded
+    user_agent <-- api_download: Return HTTP 200 Ok
+else 
+    user_agent <-- api_download: Return HTTP status code signaling the reason for failure.
+end
+
+deactivate api_download
+
+@enduml
