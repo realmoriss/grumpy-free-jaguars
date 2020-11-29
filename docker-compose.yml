@@ -1,0 +1,11 @@
+version: "3"
+services:
+  gocaff:
+    restart: always
+    build: .
+    environment:
+      - CAFF_PARSER_PATH=/usr/bin/caff
+    ports:
+      - '3000:3000'
+    volumes:
+      - './server/data:/data'

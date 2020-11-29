@@ -1,0 +1,12 @@
+libcaff/obj/
+libcaff/test-obj/
+libcaff/main-obj/
+libcaff/build/
+libcaff/*.docker
+libcaff/.gitignore
+libcaff/.dockerignore
+
+server/views/
+server/data/
+server/server
+server/.gitignore
