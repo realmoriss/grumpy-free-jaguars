@@ -5,6 +5,7 @@
 <section>
     <header>
         <h2>{{ .image.Title }}</h2>
+        <h3>Uploaded by <strong>{{ .image.User.Username }}</strong> at <strong>{{ .image.CreatedAt | formatTime }}</strong></h3>
     </header>
     <img src="data:image/png;base64,{{ .image.PreviewPng | base64 }}" />
     <p><a href="/content/preview/{{ .image.ID }}/download"><strong>Download</strong></a></p>
