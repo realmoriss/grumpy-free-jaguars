@@ -6,7 +6,8 @@ RUN apk --update add \
         cmake \
         pkgconf \
         gtest-dev \
-	strace
+	    strace \
+        valgrind
 
 # kaitai lib build
 
@@ -30,6 +31,19 @@ COPY testtools/Makefile-afl /Makefile-afl
 RUN mkdir -p /src/build
 
 RUN cp /kaitai-cpp-src/build/libkaitai_struct_cpp_stl_runtime.so /src/build/
+
+# build for valgrind
+
+RUN mkdir /valgrind && cp -r /src/* /valgrind
+
+WORKDIR /valgrind
+
+RUN make
+
+# analyze with valgrind
+
+RUN cd build && echo "Valgrind check: normal use" && valgrind ./caff < /fixtures/inputs/1.caff > /dev/null
+# RUN cd build && echo "Valgrind check: bad use" && echo "bad input" | valgrind ./caff > /dev/null this will abort the execution, and stop the image building, too
 
 # AFL install
 
@@ -57,7 +71,3 @@ RUN echo $RANDOM > /afl/in/rand
 #RUN strace -f -e trace=exit,exit_group afl-fuzz -m 200M -i /afl/in -o /afl/out /src/build/caff
 RUN afl-fuzz -m 200M -i /afl/in -o /afl/out /src/build/caff
 RUN ls /afl/out
-
-# AFL cleanup
-
-RUN mv /src/Makefile-original /src/Makefile
