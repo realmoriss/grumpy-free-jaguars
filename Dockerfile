@@ -18,7 +18,7 @@ RUN cd build && \
     cmake .. && \
     make
 
-# CAFF parser build
+# caff parser build
 
 COPY ./libcaff /src
 
@@ -32,6 +32,8 @@ WORKDIR /src
 
 RUN make
 
+# go server build
+
 FROM golang:alpine AS server-builder
 
 RUN apk --update add \
@@ -43,6 +45,8 @@ COPY ./server /src
 WORKDIR /src
 
 RUN go build
+
+# runtime environment
 
 FROM alpine:latest
 
