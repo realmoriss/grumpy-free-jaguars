@@ -51,7 +51,7 @@ RUN apk add --update libstdc++ libgcc
 COPY --from=caff-builder /src/build/caff /usr/bin/caff
 COPY --from=caff-builder /src/build/libcaff.so /usr/lib/libcaff.so
 COPY --from=caff-builder /src/build/libkaitai_struct_cpp_stl_runtime.so /usr/lib/libkaitai_struct_cpp_stl_runtime.so
-COPY --from=server-builder /src/views /views
+COPY ./server/views /views
 COPY --from=server-builder /src/server /usr/bin/server
 
 RUN mkdir /data
