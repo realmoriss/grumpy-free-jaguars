@@ -9,6 +9,7 @@ libcaff/obj/
 libcaff/test-obj/
 libcaff/main-obj/
 libcaff/build/
+libcaff/include/kaitai/
 libcaff/*.docker
 libcaff/.gitignore
 libcaff/.dockerignore

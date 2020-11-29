@@ -27,6 +27,7 @@ COPY ./fixtures /fixtures
 RUN mkdir -p /src/build
 
 RUN cp /kaitai-cpp-src/build/libkaitai_struct_cpp_stl_runtime.so /src/build/
+RUN cp -r /kaitai-cpp-src/kaitai /usr/include/
 
 WORKDIR /src
 
