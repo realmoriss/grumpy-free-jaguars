@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>{{ .title }}</title>
+        <link rel="stylesheet" href="/static/site.css" />
+        <link rel="icon" href="/static/favicon.ico" />
+        {{ template "head" }}
+    </head>
+    <body>
+        <header>
+            {{ include "layouts/header" }}
+        </header>
+        <main>
+            {{ template "content" . }}
+        </main>
+    </body>
+</html>

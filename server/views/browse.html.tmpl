@@ -1,0 +1,26 @@
+{{ define "head" }}
+{{ end }}
+
+{{ define "content" }}
+<section>
+    <header>
+        <h2>Browse</h2>
+    </header>
+    {{ if .valid }}
+        {{ if eq ( len .content ) 0 }}
+        Nothing is here. Please upload something first.
+        {{ end }}
+        {{ range .content }}
+        <aside>
+        <h3>{{ .Title }}</h3>
+        <figure>
+            <a href="/content/preview/{{ .ID }}">
+                <img src="data:image/png;base64,{{ .PreviewPng | base64 }}"/>
+            </a>
+            <figcaption>{{ .User.Username }} - {{ .CreatedAt | formatTime }}</figcaption>
+        </figure>
+        </aside>
+        {{ end }}
+    {{ end}}
+</section>
+{{ end }}}

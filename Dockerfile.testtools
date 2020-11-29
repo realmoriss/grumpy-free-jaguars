@@ -1,0 +1,73 @@
+FROM frolvlad/alpine-gxx AS caff-builder
+
+RUN apk --update add \
+        git \
+        make \
+        cmake \
+        pkgconf \
+        gtest-dev \
+	    strace \
+        valgrind
+
+# kaitai lib build
+
+WORKDIR /kaitai-cpp-src
+
+RUN git clone https://github.com/kaitai-io/kaitai_struct_cpp_stl_runtime . && \
+    git checkout 0.9
+
+RUN cd build && \
+    cmake .. && \
+    make
+
+# caff parser build preparation
+
+COPY ./libcaff /src
+
+COPY ./fixtures /fixtures
+
+COPY testtools/Makefile-afl /Makefile-afl
+
+RUN mkdir -p /src/build
+
+RUN cp /kaitai-cpp-src/build/libkaitai_struct_cpp_stl_runtime.so /src/build/
+
+# build for valgrind
+
+RUN mkdir /valgrind && cp -r /src/* /valgrind
+
+WORKDIR /valgrind
+
+RUN make
+
+# analyze with valgrind
+
+RUN cd build && echo "Valgrind check: normal use" && valgrind ./caff < /fixtures/inputs/1.caff > /dev/null
+# RUN cd build && echo "Valgrind check: bad use" && echo "bad input" | valgrind ./caff > /dev/null this will abort the execution, and stop the image building, too
+
+# AFL install
+
+RUN mkdir -p /afl
+RUN cd /afl && wget http://lcamtuf.coredump.cx/afl/releases/afl-latest.tgz && tar xzf afl-latest.tgz
+WORKDIR /afl
+RUN cd $(ls -1 | grep afl- | head) && make && make install
+RUN mkdir -p /afl/in /afl/out
+
+RUN mv /src/Makefile /src/Makefile-original
+RUN cp /Makefile-afl /src/Makefile
+
+# compile caff parser
+
+WORKDIR /src
+
+RUN make
+
+#RUN cd build && dd if=/dev/urandom bs=1024 count=1 of=junk && ./caff < junk
+
+# run AFL
+
+WORKDIR /src/build
+RUN echo $RANDOM > /afl/in/rand
+#RUN strace -f -e trace=exit,exit_group afl-fuzz -m 200M -i /afl/in -o /afl/out /src/build/caff
+RUN afl-fuzz -m 200M -i /afl/in -o /afl/out /src/build/caff
+RUN ls /afl/out

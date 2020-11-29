@@ -22,7 +22,7 @@ OBJ_FILES_EXECUTABLE := $(patsubst $(EXECUTABLE_DIR)/%.cpp,$(OBJ_DIR_EXECUTABLE)
 
 KSY_FILES := $(shell find "$(KSY_DIR)" -type f -iname '*.ksy' -print)
 
-CXX := g++
+CXX := afl-g++
 CXXFLAGS := \
 	-O2 \
 	-Wall -Wextra -pedantic \
@@ -32,7 +32,7 @@ CXXFLAGS := \
 	-fPIC \
 	$(shell pkg-config --cflags gtest gtest_main)
 
-LD := g++
+LD := afl-g++
 LDFLAGS := -lc -lstdc++ -L$(BUILD_DIR) -lkaitai_struct_cpp_stl_runtime
 LDFLAGS_TEST := -Wl,-rpath,. -L$(BUILD_DIR) -lcaff $(shell pkg-config --libs gtest gtest_main)
 LDFLAGS_EXECUTABLE := -Wl,-rpath,. -L$(BUILD_DIR) -lcaff

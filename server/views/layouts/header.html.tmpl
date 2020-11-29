@@ -1,0 +1,19 @@
+<nav>
+    <a href="/">GoCAFF</a>
+    <ul>
+        {{ if .is_authenticated }}
+        <li><a href="/content/browse">Browse</a></li>
+        <li><a href="/content/upload">Upload</a></li>
+        <li><a href="#" onclick="document.logout.submit();return false;">Log out</a></li>
+        <li>Logged in as <strong>{{.user_name}}</strong>{{ if .is_admin }} (admin){{ end }}</li>
+        {{ else }}
+        <li><a href="/user/login">Log in</a></li>
+        <li><a href="/user/register">Register</a></li>
+        {{ end }}
+    </ul>
+</nav>
+{{ if .is_authenticated }}
+<form method="POST" action="/user/logout" style="display:none" name="logout">
+    <input type="hidden" name="csrf_token" value="{{ .csrf_token }}">
+</form>
+{{ end }}

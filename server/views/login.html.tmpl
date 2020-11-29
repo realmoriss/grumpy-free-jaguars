@@ -1,0 +1,21 @@
+{{ define "head" }}
+{{ end }}
+
+{{ define "content" }}
+<section>
+    <header>
+        <h2>Log in</h2>
+    </header>
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ .csrf_token }}">
+
+        <label for="username">Username:</label>
+        <input type="text" maxlength="16" placeholder="username" name="username">
+
+        <label for="password">Password:</label>
+        <input type="password" placeholder="password" name="password">
+
+        <button type="submit">Log in</button>
+    </form>
+</section>
+{{ end }}}

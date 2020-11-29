@@ -1,0 +1,27 @@
+{{ define "head" }}
+{{ end }}
+
+{{ define "content" }}
+<section>
+    <header>
+        <h2>Register</h2>
+        {{ if .error }}
+        <p class="error">{{ .error }}</p>
+        {{ end }}
+    </header>
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ .csrf_token }}">
+
+        <label for="username">Username:</label>
+        <input type="text" maxlength="16" placeholder="username" name="username">
+
+        <label for="password">Password:</label>
+        <input type="password" placeholder="password" name="password">
+
+        <label for="password_confirm">Password:</label>
+        <input type="password" placeholder="confirm password" name="password_confirm">
+
+        <button type="submit">Submit</button>
+    </form>
+</section>
+{{ end }}}
