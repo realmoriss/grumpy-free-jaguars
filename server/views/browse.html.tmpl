@@ -7,6 +7,9 @@
         <h2>Browse</h2>
     </header>
     {{ if .valid }}
+        {{ if eq ( len .content ) 0 }}
+        Nothing is here. Please upload something first.
+        {{ end }}
         {{ range .content }}
         <aside>
         <h3>{{ .Title }}</h3>
@@ -18,6 +21,6 @@
         </figure>
         </aside>
         {{ end }}
-    {{ end }}
+    {{ end}}
 </section>
 {{ end }}}

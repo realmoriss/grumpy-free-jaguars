@@ -22,7 +22,10 @@ func renderUpload(c *gin.Context, status int, err error) {
 
 var (
 	ErrNotLoggedIn   = errors.New("User not logged in")
-	ErrUnableToParse = errors.New("Unable to parse image")
+	ErrUnableToParse = errors.New("Invalid file format")
+	ErrContentSize   = errors.New("The uploaded file is too large")
+	ErrInvalidForm   = errors.New("The submitted upload is invalid")
+	ErrDatabaseError = errors.New("Database error")
 )
 
 func (contentManager ContentEndpoint) addUploadEndpoints(router gin.IRouter) {
@@ -31,19 +34,25 @@ func (contentManager ContentEndpoint) addUploadEndpoints(router gin.IRouter) {
 	})
 
 	router.POST("/upload", func(c *gin.Context) {
+		// Limit requests to 50 MiB
+		if c.Request.ContentLength > 50<<20 {
+			renderUpload(c, http.StatusRequestEntityTooLarge, ErrContentSize)
+			return
+		}
+
 		var provided struct {
 			Title string                `form:"title" binding:"required"`
 			File  *multipart.FileHeader `form:"file" binding:"required"`
 		}
 
 		if err := c.ShouldBind(&provided); err != nil {
-			renderUpload(c, http.StatusBadRequest, err)
+			renderUpload(c, http.StatusBadRequest, ErrInvalidForm)
 			return
 		}
 
 		file, err := provided.File.Open()
 		if err != nil {
-			renderUpload(c, http.StatusBadRequest, err)
+			renderUpload(c, http.StatusBadRequest, ErrUnableToParse)
 			return
 		}
 
@@ -55,7 +64,7 @@ func (contentManager ContentEndpoint) addUploadEndpoints(router gin.IRouter) {
 
 		caff, err := model.ParseCaff(file)
 		if err != nil {
-			renderUpload(c, http.StatusBadRequest, err)
+			renderUpload(c, http.StatusBadRequest, ErrUnableToParse)
 			return
 		}
 
@@ -66,7 +75,7 @@ func (contentManager ContentEndpoint) addUploadEndpoints(router gin.IRouter) {
 			UpdateAll: true,
 		}).Create(&caff)
 		if result.Error != nil {
-			renderUpload(c, http.StatusBadRequest, result.Error)
+			renderUpload(c, http.StatusBadRequest, ErrDatabaseError)
 			return
 		}
 

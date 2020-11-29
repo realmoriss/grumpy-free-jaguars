@@ -4,7 +4,8 @@
         {{ if .is_authenticated }}
         <li><a href="/content/browse">Browse</a></li>
         <li><a href="/content/upload">Upload</a></li>
-        <li><a href="#" onclick="document.logout.submit();return false;">Log out ({{.user_name}})</a></li>
+        <li><a href="#" onclick="document.logout.submit();return false;">Log out</a></li>
+        <li>Logged in as <strong>{{.user_name}}</strong>{{ if .is_admin }} (admin){{ end }}</li>
         {{ else }}
         <li><a href="/user/login">Log in</a></li>
         <li><a href="/user/register">Register</a></li>
