@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/base64"
 	"html/template"
+	"os"
 
 	"github.com/foolin/goview"
 	"github.com/foolin/goview/supports/ginview"
@@ -33,7 +34,12 @@ func main() {
 		panic("failed to connect database")
 	}
 
-	cookieStore := cookie.NewStore([]byte("TODO-take-secret-from-elsewhere"))
+	secret := os.Getenv("SERVER_SECRET")
+	if len(secret) == 0 {
+		panic("SERVER_SECRET is not set!")
+	}
+
+	cookieStore := cookie.NewStore([]byte(secret))
 
 	router := gin.Default()
 

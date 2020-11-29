@@ -4,20 +4,20 @@ import (
 	"testing"
 )
 
-func TestHashing() {
+func TestHashing(t *testing.T) {
 	pw := HashPassword("password")
 
 	t.Run("TestHashing", func(t *testing.T) {
-		if !(CheckPasswordsMatch("password", pw)) {
+		if CheckPasswordsMatch("password", pw) != nil {
 			t.Errorf("Password matching doesn't work for 'password' and %v", pw)
 		}
-		if CheckPasswordsMatch("notpassword", pw) {
+		if CheckPasswordsMatch("notpassword", pw) == nil {
 			t.Errorf("False correct password 'notpassword' for %v", pw)
 		}
 	})
 }
 
-func TestValueScan() {
+func TestValueScan(t *testing.T) {
 	pw := HashPassword("password")
 
 	t.Run("TestValueScan", func(t *testing.T) {
@@ -27,13 +27,13 @@ func TestValueScan() {
 		}
 		var pw2 PasswordHash
 		pw2.Scan(value)
-		if !(CheckPasswordsMatch("password", pw2)) {
+		if CheckPasswordsMatch("password", pw2) != nil {
 			t.Errorf("Password serialization broken for 'password' and %v", pw)
 		}
 	})
 }
 
-func TestUserAdmin() {
+func TestUserAdmin(t *testing.T) {
 	user := User{
 		Username:     "name",
 		PasswordHash: HashPassword("xxx"),

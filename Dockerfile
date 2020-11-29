@@ -46,6 +46,8 @@ WORKDIR /src
 
 RUN go build
 
+RUN env CAFF_PARSER_PATH=/bin/false go test ./...
+
 # runtime environment
 
 FROM alpine:latest
