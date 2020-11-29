@@ -13,6 +13,8 @@ libcaff/*.docker
 libcaff/.gitignore
 libcaff/.dockerignore
 
+nginx/
+
 server/data/
 server/server
 server/.gitignore

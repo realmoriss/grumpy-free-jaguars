@@ -1,11 +1,20 @@
 version: "3"
 services:
+  front:
+    restart: always
+    image: nginx:stable-alpine
+    ports:
+      - 8080:80
+    volumes:
+      - './nginx/nginx.conf:/etc/nginx/nginx.conf:ro'
+      - './nginx/static:/var/www/static:ro'
+    depends_on:
+      - gocaff
+
   gocaff:
     restart: always
     build: .
     environment:
       - CAFF_PARSER_PATH=/usr/bin/caff
-    ports:
-      - '3000:3000'
     volumes:
       - './server/data:/data'
