@@ -25,6 +25,7 @@ type ContentEndpoint struct {
 
 func NewEndpoint(router gin.IRouter, db *gorm.DB) *ContentEndpoint {
 	db.AutoMigrate(&model.CaffContent{})
+	db.AutoMigrate(&model.Comment{})
 
 	self := &ContentEndpoint{db: db}
 

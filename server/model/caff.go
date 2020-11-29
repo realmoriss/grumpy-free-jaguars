@@ -34,18 +34,20 @@ func init() {
 type CaffContent struct {
 	gorm.Model
 	User       *User
-	UserID     uint
-	Title      string `gorm:"not null"`
-	RawFile    []byte `gorm:"->;<-:create;not null"`
-	PreviewPng []byte `gorm:"->;<-:create;not null"`
+	UserID     uint       `gorm:"not null"`
+	Title      string     `gorm:"not null"`
+	RawFile    []byte     `gorm:"->;<-:create;not null"`
+	PreviewPng []byte     `gorm:"->;<-:create;not null"`
+	Comments   []*Comment `gorm:"foreignKey:CaffContentID;references:ID;constraint:OnDelete:CASCADE;"`
 }
 
 type CaffPreview struct {
 	gorm.Model
 	User       *User
-	UserID     uint
-	Title      string
-	PreviewPng []byte
+	UserID     uint       `gorm:"not null"`
+	Title      string     `gorm:"not null"`
+	PreviewPng []byte     `gorm:"->;<-:create;not null"`
+	Comments   []*Comment `gorm:"foreignKey:CaffContentID;references:ID;constraint:OnDelete:CASCADE;"`
 }
 
 var (

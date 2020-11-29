@@ -4,8 +4,9 @@ import (
 	"net/http"
 	"server/util"
 
-	"github.com/gin-gonic/gin"
 	"server/model"
+
+	"github.com/gin-gonic/gin"
 )
 
 func (userManager UserEndpoint) Register(user model.User) error {
@@ -24,9 +25,9 @@ func (userManager UserEndpoint) addRegisterEndpoints(router gin.IRouter) {
 
 	router.POST("/register", func(c *gin.Context) {
 		var requested struct {
-			Username        string `form:"username"`
-			Password        string `form:"password"`
-			PasswordConfirm string `form:"password_confirm"`
+			Username        string `form:"username" binding:"required"`
+			Password        string `form:"password" binding:"required"`
+			PasswordConfirm string `form:"password_confirm" binding:"required"`
 		}
 
 		fail := func(err error) {

@@ -32,8 +32,8 @@ func (contentManager ContentEndpoint) addUploadEndpoints(router gin.IRouter) {
 
 	router.POST("/upload", func(c *gin.Context) {
 		var provided struct {
-			Title string                `form:"title"`
-			File  *multipart.FileHeader `form:"file"`
+			Title string                `form:"title" binding:"required"`
+			File  *multipart.FileHeader `form:"file" binding:"required"`
 		}
 
 		if err := c.ShouldBind(&provided); err != nil {
@@ -55,7 +55,7 @@ func (contentManager ContentEndpoint) addUploadEndpoints(router gin.IRouter) {
 
 		caff, err := model.ParseCaff(file)
 		if err != nil {
-			renderUpload(c, http.StatusBadRequest, ErrUnableToParse)
+			renderUpload(c, http.StatusBadRequest, err)
 			return
 		}
 

@@ -74,8 +74,8 @@ func (userManager UserEndpoint) addLoginEndpoints(router gin.IRouter) {
 		}
 
 		var provided struct {
-			Username string `form:"username"`
-			Password string `form:"password"`
+			Username string `form:"username" binding:"required"`
+			Password string `form:"password" binding:"required"`
 		}
 
 		if err := c.ShouldBind(&provided); err != nil {

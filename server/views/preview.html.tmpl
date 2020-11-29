@@ -8,4 +8,26 @@
     </header>
     <img src="data:image/png;base64,{{ .image.PreviewPng | base64 }}" />
 </section>
+<section style="margin-bottom:2rem">
+    <header>
+        <h2>Comments</h2>
+    </header>
+    <form method="POST">
+        <header>
+            <h3>Add comment</h3>
+        </header>
+        <input type="hidden" name="csrf_token" value="{{ .csrf_token }}">
+
+        <textarea rows="3" cols="40" placeholder="Write your comment here" name="comment"></textarea>
+        <input type="submit" value="Submit" />
+    </form>
+</section>
+    {{ range .comments }}
+    <article style="margin-bottom:0.5rem">
+        <aside>
+            <p>{{ .Text }}</p>
+            <p style="text-align:right">{{ .User.Username }} - {{ .UpdatedAt | formatTime }}</p>
+        </aside>
+    </article>
+    {{ end }}
 {{ end }}}

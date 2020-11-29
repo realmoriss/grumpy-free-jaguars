@@ -3,6 +3,7 @@ package model
 import (
 	"database/sql/driver"
 	"encoding/hex"
+
 	"gorm.io/gorm"
 
 	"golang.org/x/crypto/bcrypt"
@@ -14,7 +15,8 @@ type User struct {
 	Username     string       `gorm:"unique;not null"`
 	PasswordHash PasswordHash `gorm:"not null"`
 
-	Content []CaffContent `gorm:"constraint:OnDelete:CASCADE;"`
+	Content  []*CaffContent `gorm:"foreignKey:UserID;references:ID;constraint:OnDelete:CASCADE;"`
+	Comments []*Comment     `gorm:"foreignKey:UserID;references:ID;constraint:OnDelete:CASCADE;"`
 }
 
 type PasswordHash struct {
