@@ -25,8 +25,9 @@ type UserEndpoint struct {
 }
 
 var (
-	ErrPasswordDoNotMatch = errors.New("passwords did not match")
-	ErrPasswordInsecure   = errors.New("password must be ...") // TODO: at least not empty, perhaps?
+	ErrPasswordDoNotMatch       = errors.New("Passwords did not match")
+	ErrPasswordInsecure         = errors.New("Password must be at least 8 characters long") // TODO: at least not empty, perhaps?
+	ErrRegistrationUnsuccessful = errors.New("Registration failed with the specified username")
 )
 
 func NewEndpoint(router gin.IRouter, db *gorm.DB) *UserEndpoint {

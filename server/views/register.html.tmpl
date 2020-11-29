@@ -5,6 +5,9 @@
 <section>
     <header>
         <h2>Register</h2>
+        {{ if .error }}
+        <p class="error">{{ .error }}</p>
+        {{ end }}
     </header>
     <form method="POST">
         <input type="hidden" name="csrf_token" value="{{ .csrf_token }}">

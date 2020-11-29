@@ -14,13 +14,18 @@ func (userManager UserEndpoint) Register(user model.User) error {
 	return result.Error
 }
 
+func renderRegister(c *gin.Context, status int, err error) {
+	util.HtmlWithContext(c, status, "register", gin.H{
+		"title": "Register",
+		"error": err,
+	})
+}
+
 func (userManager UserEndpoint) addRegisterEndpoints(router gin.IRouter) {
 	// TODO: continue cleanup
 	router.GET("/register", func(c *gin.Context) {
 		// CSRF example
-		util.HtmlWithContext(c, http.StatusOK, "register", gin.H{
-			"title": "Register",
-		})
+		renderRegister(c, http.StatusOK, nil)
 	})
 
 	router.POST("/register", func(c *gin.Context) {
@@ -31,19 +36,7 @@ func (userManager UserEndpoint) addRegisterEndpoints(router gin.IRouter) {
 		}
 
 		fail := func(err error) {
-			logger.Println(err)
-			msg := "failed to serve request"
-			status := http.StatusBadRequest
-
-			switch err {
-			case ErrPasswordInsecure:
-				fallthrough
-			case ErrPasswordDoNotMatch:
-				msg = err.Error()
-			}
-
-			c.String(status, msg)
-			return
+			renderRegister(c, http.StatusBadRequest, err)
 		}
 
 		err := c.ShouldBind(&requested)
@@ -57,7 +50,7 @@ func (userManager UserEndpoint) addRegisterEndpoints(router gin.IRouter) {
 			fail(ErrPasswordDoNotMatch)
 			return
 
-		case len(requested.Password) < 1:
+		case len(requested.Password) < 8:
 			fail(ErrPasswordInsecure)
 			return
 		}
@@ -67,7 +60,7 @@ func (userManager UserEndpoint) addRegisterEndpoints(router gin.IRouter) {
 			PasswordHash: model.HashPassword(requested.Password),
 		})
 		if err != nil {
-			fail(err)
+			fail(ErrRegistrationUnsuccessful)
 			return
 		}
 

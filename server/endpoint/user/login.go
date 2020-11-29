@@ -22,7 +22,10 @@ func (userManager UserEndpoint) GetCurrentUserFromSession(c *gin.Context) *model
 	userId := sess.Get(sessionUserId)
 	if userId != nil {
 		uid := userId.(uint)
-		userManager.db.First(&user, uid)
+		result := userManager.db.First(&user, uid)
+		if result.Error != nil {
+			return nil
+		}
 		return &user
 	}
 
@@ -109,5 +112,5 @@ func (userManager UserEndpoint) Login(username, password string) (*model.User, e
 		return nil, result.Error
 	}
 
-	return &user, model.CheckPasswordsMatch(username, user.PasswordHash)
+	return &user, model.CheckPasswordsMatch(password, user.PasswordHash)
 }
