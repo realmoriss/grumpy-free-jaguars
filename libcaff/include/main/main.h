@@ -3,6 +3,6 @@
 
 #include <libcaff/caff.h>
 
-int print_preview(caff_t& parsed);
+// int print_preview(caff_t& parsed);
 
 #endif
