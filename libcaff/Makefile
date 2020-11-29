@@ -29,11 +29,12 @@ CXXFLAGS := \
 	-c \
 	-std=c++17 \
 	-I$(INCLUDE_DIR) -I$(INCLUDE_DIR)/libcaff \
-	-fPIC
+	-fPIC \
+	$(shell pkg-config --cflags gtest gtest_main)
 
 LD := g++
 LDFLAGS := -lc -lstdc++ -L$(BUILD_DIR) -lkaitai_struct_cpp_stl_runtime
-LDFLAGS_TEST := -lgtest -Wl,-rpath,. -L$(BUILD_DIR) -lcaff
+LDFLAGS_TEST := -Wl,-rpath,. -L$(BUILD_DIR) -lcaff $(shell pkg-config --libs gtest gtest_main)
 LDFLAGS_EXECUTABLE := -Wl,-rpath,. -L$(BUILD_DIR) -lcaff
 
 
@@ -57,7 +58,7 @@ test: $(TEST_RUNNER)
 	cd $(shell dirname $(TEST_RUNNER)) && ./$(shell basename $(TEST_RUNNER))
 
 $(TEST_RUNNER): $(OBJ_FILES_TEST) $(BUILD_DIR)/$(LIB)
-	$(LD) $(LDFLAGS) $(LDFLAGS_TEST) -o $(TEST_RUNNER) $(OBJ_FILES_TEST)
+	$(LD) -o $(TEST_RUNNER) $(OBJ_FILES_TEST) $(LDFLAGS) $(LDFLAGS_TEST)
 
 test-executable: $(EXECUTABLE)
 	cd $(shell dirname $(EXECUTABLE)) && ./$(shell basename $(EXECUTABLE)) < "../../fixtures/inputs/1.caff" > /dev/null
@@ -67,7 +68,7 @@ executable: $(EXECUTABLE)
 .PHONY: executable
 
 $(EXECUTABLE): $(OBJ_FILES_EXECUTABLE) $(BUILD_DIR)/$(LIB)
-	$(LD) $(LDFLAGS) $(LDFLAGS_EXECUTABLE) -o $(EXECUTABLE) $(OBJ_FILES_EXECUTABLE)
+	$(LD) -o $(EXECUTABLE) $(OBJ_FILES_EXECUTABLE) $(LDFLAGS) $(LDFLAGS_EXECUTABLE)
 
 $(SRC_DIR)/caff/caff.cpp $(SRC_DIR)/caff/ciff.cpp: $(KSY_FILES)
 	DOCKER_BUILDKIT=1 docker build -o . -f kaitai-gen.docker .
