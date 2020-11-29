@@ -3,6 +3,7 @@ package util
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/nosurf"
+	"server/model"
 
 	"server/middleware"
 )
@@ -18,6 +19,7 @@ func HtmlWithContext(c *gin.Context, status int, template string, args gin.H) {
 		merged["is_authenticated"] = true
 		merged["user_id"] = user.ID
 		merged["user_name"] = user.Username
+		merged["is_admin"] = model.IsAdministrator(*user)
 	}
 
 	merged["csrf_token"] = nosurf.Token(c.Request)

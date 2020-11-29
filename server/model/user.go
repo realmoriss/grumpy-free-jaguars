@@ -17,6 +17,12 @@ type User struct {
 
 	Content  []*CaffContent `gorm:"foreignKey:UserID;references:ID;constraint:OnDelete:CASCADE;"`
 	Comments []*Comment     `gorm:"foreignKey:UserID;references:ID;constraint:OnDelete:CASCADE;"`
+
+	IsAdmin bool // NOTE: gorm does not seem to serialize unexported fields. I should have expected that.
+}
+
+func IsAdministrator(user User) bool {
+	return user.IsAdmin
 }
 
 type PasswordHash struct {

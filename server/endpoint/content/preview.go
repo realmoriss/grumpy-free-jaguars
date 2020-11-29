@@ -43,7 +43,7 @@ func (contentManager ContentEndpoint) addPreviewEndpoints(router gin.IRouter) {
 		renderPreview(c, contentManager.db, http.StatusOK, c.Param("id"))
 	})
 
-	router.GET("/preview/:id/:caff", func(c *gin.Context) {
+	router.GET("/preview/:id/download", func(c *gin.Context) {
 		type CaffTitle struct {
 			Title string
 		}
@@ -107,5 +107,68 @@ func (contentManager ContentEndpoint) addPreviewEndpoints(router gin.IRouter) {
 		}
 
 		c.Redirect(http.StatusSeeOther, c.Request.RequestURI)
+	})
+
+	router.POST("/delete/caff/:id", func(c *gin.Context) {
+		caffID := c.Param("id")
+		user := middleware.CurrentUser(c)
+
+		switch {
+		case user == nil:
+			// should never happen due to the auth middleware, but let's be sure we do not dereference any nils.
+			c.Redirect(http.StatusSeeOther, "/")
+			return
+		case model.IsAdministrator(*user) == false:
+			util.HtmlWithContext(c, http.StatusUnauthorized, "unauth", gin.H{})
+		}
+
+		caffIDNum, err := strconv.ParseUint(caffID, 10, 32)
+		if err != nil {
+			renderPreview(c, contentManager.db, http.StatusBadRequest, caffID)
+		}
+
+		var pic model.CaffContent
+
+		result := contentManager.db.Find(&pic, caffIDNum)
+		if result.Error != nil {
+			renderPreview(c, contentManager.db, http.StatusInternalServerError, caffID)
+			return
+		}
+
+		contentManager.db.Delete(pic)
+
+		c.Redirect(http.StatusSeeOther, "/content/browse")
+	})
+
+	router.POST("/delete/comment/:cid", func(c *gin.Context) {
+		caffID := c.Param("id")
+		commentID := c.Param("cid")
+
+		user := middleware.CurrentUser(c)
+
+		switch {
+		case user == nil:
+			// should never happen due to the auth middleware, but let's be sure we do not dereference any nils.
+			c.Redirect(http.StatusSeeOther, "/")
+			return
+		case model.IsAdministrator(*user) == false:
+			util.HtmlWithContext(c, http.StatusUnauthorized, "unauth", gin.H{})
+		}
+
+		commentIDNum, err := strconv.ParseUint(commentID, 10, 32)
+		if err != nil {
+			renderPreview(c, contentManager.db, http.StatusBadRequest, caffID)
+		}
+
+		var comment model.Comment
+		result := contentManager.db.Find(&comment, commentIDNum)
+		if result.Error != nil {
+			renderPreview(c, contentManager.db, http.StatusInternalServerError, caffID)
+			return
+		}
+
+		contentManager.db.Delete(comment)
+
+		c.Redirect(http.StatusSeeOther, fmt.Sprintf("/content/preview/%d", comment.CaffContentID))
 	})
 }

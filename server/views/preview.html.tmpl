@@ -9,6 +9,15 @@
     </header>
     <img src="data:image/png;base64,{{ .image.PreviewPng | base64 }}" />
     <p><a href="/content/preview/{{ .image.ID }}/download"><strong>Download</strong></a></p>
+
+    {{ if .is_admin }}
+        <p><a href="#" onclick="document.delete.submit(); return false;" >
+            <strong>Remove</strong>
+        </a></p>
+        <form method="POST" style="display: none;" name="delete" action="/content/delete/caff/{{ .image.ID }}">
+            <input type="hidden" name="csrf_token" value="{{ .csrf_token }}">
+        </form>
+    {{ end }}
 </section>
 <section style="margin-bottom:2rem">
     <header>
@@ -29,6 +38,14 @@
         <aside>
             <p>{{ .Text }}</p>
             <p style="text-align:right">{{ .User.Username }} - {{ .UpdatedAt | formatTime }}</p>
+            {{ if $.is_admin }}
+                <p><a href="#" onclick="document.querySelector('form[name=delete-comment-{{ .ID }}]').submit(); return false;" >
+                    <strong>Remove comment</strong>
+                </a></p>
+                <form method="POST" style="display: none;" name="delete-comment-{{ .ID }}" action="/content/delete/comment/{{ .ID }}">
+                    <input type="hidden" name="csrf_token" value="{{ $.csrf_token }}">
+                </form>
+            {{ end }}
         </aside>
     </article>
     {{ end }}
