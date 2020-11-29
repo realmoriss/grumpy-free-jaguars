@@ -39,6 +39,6 @@ $ head -n 1 /tmp/1.preview | read WIDTH HEIGHT && tail -n +1 /tmp/1.preview | co
 ```
 
 ## Work shares
-- Sarkadi Csaba: xx%
-- Schulcz Ferenc: xx%
-- Telek István: xx%
+- Sarkadi Csaba: 33,333%
+- Schulcz Ferenc: 33,333%
+- Telek István: 33,333%
