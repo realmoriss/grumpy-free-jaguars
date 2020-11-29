@@ -1,10 +1,13 @@
 package content
 
 import (
+	"fmt"
 	"net/http"
-	"realmoriss/grumpy-free-jaguars/server/middleware"
+	"server/middleware"
 	"server/model"
 	"strconv"
+
+	"github.com/gosimple/slug"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -17,7 +20,7 @@ func renderPreview(c *gin.Context, db *gorm.DB, status int, id string) {
 
 	contentResult := db.Model(&model.CaffContent{}).Preload("User").First(&content, id)
 	if contentResult.Error != nil {
-		c.String(http.StatusOK, contentResult.Error.Error())
+		c.String(http.StatusNotFound, contentResult.Error.Error())
 		return
 	}
 
@@ -38,6 +41,37 @@ func renderPreview(c *gin.Context, db *gorm.DB, status int, id string) {
 func (contentManager ContentEndpoint) addPreviewEndpoints(router gin.IRouter) {
 	router.GET("/preview/:id", func(c *gin.Context) {
 		renderPreview(c, contentManager.db, http.StatusOK, c.Param("id"))
+	})
+
+	router.GET("/preview/:id/:caff", func(c *gin.Context) {
+		type CaffTitle struct {
+			Title string
+		}
+
+		var title CaffTitle
+
+		contentResult := contentManager.db.Model(&model.CaffContent{}).Where("id = ?", c.Param("id")).Scan(&title)
+		if contentResult.Error != nil {
+			c.String(http.StatusNotFound, contentResult.Error.Error())
+			return
+		}
+
+		titleSlug := slug.Make(title.Title)
+		actualURL := fmt.Sprintf("/content/preview/%s/%s.caff", c.Param("id"), titleSlug)
+		if c.Request.URL.Path != actualURL {
+			c.Redirect(http.StatusFound, actualURL)
+			return
+		}
+
+		var content model.CaffContent
+
+		contentResult = contentManager.db.Model(&model.CaffContent{}).First(&content, c.Param("id"))
+		if contentResult.Error != nil {
+			c.String(http.StatusNotFound, contentResult.Error.Error())
+			return
+		}
+
+		c.Data(http.StatusOK, "application/octet-stream", content.RawFile)
 	})
 
 	router.POST("/preview/:id", func(c *gin.Context) {

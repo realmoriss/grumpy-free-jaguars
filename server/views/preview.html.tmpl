@@ -7,6 +7,7 @@
         <h2>{{ .image.Title }}</h2>
     </header>
     <img src="data:image/png;base64,{{ .image.PreviewPng | base64 }}" />
+    <p><a href="/content/preview/{{ .image.ID }}/download"><strong>Download</strong></a></p>
 </section>
 <section style="margin-bottom:2rem">
     <header>
