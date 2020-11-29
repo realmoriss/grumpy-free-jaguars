@@ -1,3 +1,10 @@
+.vscode
+.gitignore
+.gitmodules
+README.md
+
+doc/
+
 libcaff/obj/
 libcaff/test-obj/
 libcaff/main-obj/
@@ -6,7 +13,6 @@ libcaff/*.docker
 libcaff/.gitignore
 libcaff/.dockerignore
 
-server/views/
 server/data/
 server/server
 server/.gitignore
