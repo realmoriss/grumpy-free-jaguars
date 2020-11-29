@@ -57,6 +57,10 @@ func (contentManager ContentEndpoint) addPreviewEndpoints(router gin.IRouter) {
 		}
 
 		titleSlug := slug.Make(title.Title)
+		if len(titleSlug) == 0 {
+			titleSlug = c.Param("id")
+		}
+
 		actualURL := fmt.Sprintf("/content/preview/%s/%s.caff", c.Param("id"), titleSlug)
 		if c.Request.URL.Path != actualURL {
 			c.Redirect(http.StatusFound, actualURL)
