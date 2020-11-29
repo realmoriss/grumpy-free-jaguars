@@ -16,5 +16,6 @@ services:
     build: .
     environment:
       - CAFF_PARSER_PATH=/usr/bin/caff
+      - GIN_MODE=release
     volumes:
       - './server/data:/data'
