@@ -9,10 +9,12 @@ Building and running all takes place in docker-compose, so just issue the follow
 
 The code has a native component for parsing CAFF files. To run checks (AFL fuzzer and valgrind) for memory management errors on it, run `docker-compose --file docker-compose.testtools.yml up --build && yes | docker-compose --file docker-compose.testtools.yml rm`. Note that AFL can run for a really long time.
 
-## Security tests
+## Code security
 The CAFF parser has been inspected for memory-management errors, using valgrind and AFL. To repeat these checks, see above.
 
 The service has been scanned using Zed Attack Proxy and SQLmap. No true positive problems have been discovered.
+
+During development, [OWASP's Go web application secure coding practices](https://raw.githubusercontent.com/OWASP/Go-SCP/master/dist/go-webapp-scp.pdf) were followed. We used Go's compiler as a static analysis tool.
 
 ## CAFF parser
 The CAFF parser library (`libcaff.so`) is implemented in C++. The library uses [Kaitai Struct](https://kaitai.io) for parsing the animation files. A sample application (`caff`) is provided to demonstrate the usage of the library.
